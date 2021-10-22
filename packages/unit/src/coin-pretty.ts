@@ -162,6 +162,30 @@ export class CoinPretty {
     return `${this.intPretty.toString()}${separator}${denom}`;
   }
 
+  toMetricPrefix(): string {
+    let denom = this.denom;
+    if (this._options.upperCase) {
+      denom = denom.toUpperCase();
+    }
+    if (this._options.lowerCase) {
+      denom = denom.toLowerCase();
+    }
+
+    let separator = this._options.separator;
+
+    if (this._options.hideDenom) {
+      denom = "";
+      separator = "";
+    }
+
+    const [, afterPoint] = this.intPretty.toString().split(".");
+    const deep = afterPoint.length;
+
+    return `${
+        (Number(afterPoint) * 10) ^ deep
+    } x 10*-${deep}${separator}${denom}`;
+  }
+
   clone(): CoinPretty {
     const pretty = new CoinPretty(this._currency, this.amount);
     pretty._options = {
