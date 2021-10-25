@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "module": "esnext",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "jsx": "react",
+    "outDir": "./lib/",
+    "typeRoots": ["./node_modules/@types"]
+  },
+  "include": ["./src/components", "./src/stories"],
+  "exclude": ["node_modules", "storybook-static", "lib", "**/*.spec.ts"]
+}

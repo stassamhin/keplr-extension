@@ -1,0 +1,35 @@
+.container {
+  height: 100%;
+}
+
+.banner-flex-vertical {
+  display: flex;
+  flex-direction: column;
+}
+
+.banner-flex-horizontal {
+  display: flex;
+  flex-direction: row;
+}
+
+.banner-empty {
+  flex: 1;
+}
+
+.banner-icon {
+  object-fit: contain;
+  height: 150px;
+
+  margin-bottom: 30px;
+}
+
+.banner-logo {
+  object-fit: contain;
+  width: 220px;
+
+  margin-bottom: 4px;
+}
+
+.banner-subtitle {
+  font-size: 18px;
+}
