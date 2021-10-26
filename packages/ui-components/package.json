@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@storybook/react": "^6.3.12",
+    "babel-loader": "^8.2.3",
     "react": "^16.14.0",
     "react-docgen-typescript-loader": "3.1.0",
     "react-dom": "^16.14.0",
@@ -12,7 +13,9 @@
   "scripts": {
     "prepare": "tsc",
     "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public"
+    "build-storybook": "build-storybook -s public",
+    "lint-test": "eslint \"src/**/*\" && prettier --check \"src/**/*\"",
+    "lint-fix": "eslint --fix \"src/**/*\" && prettier --write \"src/**/*\""
   },
   "devDependencies": {
     "@storybook/addon-actions": "^6.3.12",
