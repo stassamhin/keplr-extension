@@ -228,7 +228,10 @@ export const FeeButtonsInner: FunctionComponent<
                 "text-muted": feeConfig.feeType !== "average",
               })}
             >
-              {feeConfig.getFeeTypePretty("average").trim(true).toMetricPrefix()}
+              {feeConfig
+                .getFeeTypePretty("average")
+                .trim(true)
+                .toMetricPrefix()}
             </div>
           </Button>
           <Button
