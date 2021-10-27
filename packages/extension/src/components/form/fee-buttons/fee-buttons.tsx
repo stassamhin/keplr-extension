@@ -191,8 +191,7 @@ export const FeeButtonsInner: FunctionComponent<
                   "text-muted": feeConfig.feeType !== "low",
                 })}
               >
-                <div>{lowFee.trim(true).toString()+"Test"}</div>
-                <div>{lowFee.trim(true).toMetricPrefix()}</div>
+                {lowFeePrice.trim(true).toString()}
               </div>
             ) : null}
             <div
