@@ -165,7 +165,7 @@ export class CoinPretty {
 
   toMetricPrefix(): string {
     const [, afterPoint] = this.intPretty.toString().split(".");
-    
+
     if (!afterPoint) {
       return this.intPretty.toString();
     }
@@ -185,9 +185,11 @@ export class CoinPretty {
       separator = "";
     }
 
-    const { remainder, prefix } = toMetric(afterPoint.length)
-    const numberPart = remainder ? Number(afterPoint) * Math.pow(10, remainder) : Number(afterPoint);
-    const prefixPart = prefix ? ` ${ prefix }` : '';
+    const { remainder, prefix } = toMetric(afterPoint.length);
+    const numberPart = remainder
+      ? Number(afterPoint) * Math.pow(10, remainder)
+      : Number(afterPoint);
+    const prefixPart = prefix ? ` ${prefix}` : "";
 
     return `${numberPart}${prefixPart}${separator}${denom}`;
   }
