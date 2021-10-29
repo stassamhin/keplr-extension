@@ -1,4 +1,8 @@
-import { IConnector } from "@walletconnect/types";
+import {
+  IConnector,
+  IJsonRpcRequest,
+  IRequestOptions,
+} from "@walletconnect/types";
 import {
   ChainInfo,
   Keplr,
@@ -72,6 +76,15 @@ export class KeplrWalletConnectV1 implements Keplr {
     public readonly options: {
       kvStore?: KVStore;
       sendTx?: Keplr["sendTx"];
+      onBeforeSendRequest?: (
+        request: Partial<IJsonRpcRequest>,
+        options?: IRequestOptions
+      ) => Promise<void> | void;
+      onAfterSendRequest?: (
+        response: any,
+        request: Partial<IJsonRpcRequest>,
+        options?: IRequestOptions
+      ) => Promise<void> | void;
     } = {}
   ) {
     if (!options.kvStore) {
@@ -172,6 +185,23 @@ export class KeplrWalletConnectV1 implements Keplr {
     ]);
   }
 
+  protected async sendCustomRequest(
+    request: Partial<IJsonRpcRequest>,
+    options?: IRequestOptions
+  ): Promise<any> {
+    if (this.options.onBeforeSendRequest) {
+      await this.options.onBeforeSendRequest(request, options);
+    }
+
+    const res = await this.connector.sendCustomRequest(request, options);
+
+    if (this.options.onAfterSendRequest) {
+      await this.options.onAfterSendRequest(res, request, options);
+    }
+
+    return res;
+  }
+
   async enable(chainIds: string | string[]): Promise<void> {
     if (typeof chainIds === "string") {
       chainIds = [chainIds];
@@ -190,7 +220,7 @@ export class KeplrWalletConnectV1 implements Keplr {
       return;
     }
 
-    await this.connector.sendCustomRequest({
+    await this.sendCustomRequest({
       id: payloadId(),
       jsonrpc: "2.0",
       method: "keplr_enable_wallet_connect_v1",
@@ -201,7 +231,7 @@ export class KeplrWalletConnectV1 implements Keplr {
   }
 
   protected getKeyHasEnabled() {
-    return `${this.connector.session.key}-enabled`;
+    return `${this.connector.session.handshakeTopic}-enabled`;
   }
 
   protected async getHasEnabledChainIds(): Promise<string[]> {
@@ -273,7 +303,7 @@ export class KeplrWalletConnectV1 implements Keplr {
     }
 
     const response = (
-      await this.connector.sendCustomRequest({
+      await this.sendCustomRequest({
         id: payloadId(),
         jsonrpc: "2.0",
         method: "keplr_get_key_wallet_connect_v1",
@@ -294,7 +324,7 @@ export class KeplrWalletConnectV1 implements Keplr {
   }
 
   protected getKeyLastSeenKey() {
-    return `${this.connector.session.key}-key`;
+    return `${this.connector.session.handshakeTopic}-key`;
   }
 
   protected async getLastSeenKey(
@@ -372,11 +402,11 @@ export class KeplrWalletConnectV1 implements Keplr {
    */
   sendTx(
     chainId: string,
-    stdTx: StdTx,
+    tx: StdTx | Uint8Array,
     mode: BroadcastMode
   ): Promise<Uint8Array> {
     if (this.options.sendTx) {
-      return this.options.sendTx(chainId, stdTx, mode);
+      return this.options.sendTx(chainId, tx, mode);
     }
 
     throw new Error("send tx is not delivered by options");
@@ -389,7 +419,7 @@ export class KeplrWalletConnectV1 implements Keplr {
     signOptions: KeplrSignOptions = {}
   ): Promise<AminoSignResponse> {
     return (
-      await this.connector.sendCustomRequest({
+      await this.sendCustomRequest({
         id: payloadId(),
         jsonrpc: "2.0",
         method: "keplr_sign_amino_wallet_connect_v1",

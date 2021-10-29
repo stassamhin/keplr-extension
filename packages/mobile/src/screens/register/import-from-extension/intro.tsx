@@ -54,7 +54,7 @@ export const ImportFromExtensionIntroScreen: FunctionComponent = () => {
               "margin-bottom-24",
             ])}
           >
-            {`Import your account by going to\n‘Settings > Link Keplr Mobile’ on Keplr Extension and scanning the QR code`}
+            {`Import your account(s) by going to\n‘Settings > Link Keplr Mobile’ on Keplr Extension and scanning the QR code`}
           </Text>
           <Text
             style={style.flatten([
@@ -64,7 +64,7 @@ export const ImportFromExtensionIntroScreen: FunctionComponent = () => {
               "margin-x-38",
             ])}
           >
-            Note: Ledger accounts need to be imported seaprately
+            Note: Ledger accounts need to be imported separately
           </Text>
         </View>
         <View style={style.get("flex-3")} />

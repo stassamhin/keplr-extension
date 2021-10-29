@@ -1,6 +1,7 @@
 import WalletConnect from "@walletconnect/client";
 import { KeyRingStore, PermissionStore } from "@keplr-wallet/stores";
 import {
+  action,
   autorun,
   computed,
   makeObservable,
@@ -19,7 +20,7 @@ import {
 } from "@keplr-wallet/background";
 import { computedFn } from "mobx-utils";
 import { Key } from "@keplr-wallet/types";
-import { Linking } from "react-native";
+import { AppState, Linking } from "react-native";
 
 export interface WalletConnectV1SessionRequest {
   id: number;
@@ -79,12 +80,11 @@ export abstract class WalletConnectManager {
 
   async restoreClient(session: WalletConnect["session"]) {
     const client = new WalletConnect({
-      // TODO: Set metadata properly.
       clientMeta: {
         name: "Keplr",
         description: "Wallet for interchain",
         url: "#",
-        icons: ["https://walletconnect.org/walletconnect-logo.png"],
+        icons: ["https://dhj8dql1kzq2v.cloudfront.net/keplr-256x256.png"],
       },
       session,
     });
@@ -137,6 +137,18 @@ export abstract class WalletConnectManager {
     }
   }
 
+  isClientInitialized(uri: string): boolean {
+    return this.clientMap.has(uri);
+  }
+
+  isClientPending(uri: string): boolean {
+    return this.pendingClientMap.has(uri);
+  }
+
+  canInitClient(uri: string): boolean {
+    return !this.isClientInitialized(uri) && !this.isClientPending(uri);
+  }
+
   async initClient(uri: string): Promise<WalletConnect> {
     await this.waitInitStores();
 
@@ -150,12 +162,11 @@ export abstract class WalletConnectManager {
 
     const client = new WalletConnect({
       uri,
-      // TODO: Set metadata properly.
       clientMeta: {
         name: "Keplr",
         description: "Wallet for interchain",
         url: "#",
-        icons: ["https://walletconnect.org/walletconnect-logo.png"],
+        icons: ["https://dhj8dql1kzq2v.cloudfront.net/keplr-256x256.png"],
       },
     });
 
@@ -262,6 +273,8 @@ export abstract class WalletConnectManager {
     const keplr = this.createKeplrAPI(client.session.key);
 
     try {
+      this.onCallBeforeRequested(client);
+
       switch (payload.method) {
         case "keplr_enable_wallet_connect_v1": {
           if (payload.params.length === 0) {
@@ -329,6 +342,8 @@ export abstract class WalletConnectManager {
           message: e.message,
         },
       });
+    } finally {
+      this.onCallAfterRequested(client);
     }
   };
 
@@ -336,11 +351,56 @@ export abstract class WalletConnectManager {
   protected abstract onSessionDisconnected(
     client: WalletConnect
   ): Promise<void>;
+  protected onCallBeforeRequested(_: WalletConnect): void {
+    // should override this if needed.
+  }
+  protected onCallAfterRequested(_: WalletConnect): void {
+    // should override this if needed.
+  }
 }
 
 export class WalletConnectStore extends WalletConnectManager {
   @observable.shallow
   protected _clients: WalletConnect[] = [];
+
+  /*
+   Indicate that there is a pending client that was requested from the deep link.
+   Creating session take some time, but this store can't show the indicator.
+   Component can show the indicator on behalf of this store if needed.
+   */
+  @observable
+  protected _isPendingClientFromDeepLink: boolean = false;
+
+  @observable
+  protected _needGoBackToBrowser: boolean = false;
+
+  /*
+   XXX: Fairly hacky part.
+        In Android, it seems posible that JS works, but all views deleted.
+        This case seems to happen when the window size of the app is forcibly changed or the app is exited.
+        But there doesn't seem to be an API that can detect this.
+        The reason this is a problem is that the stores are all built with a singleton concept.
+        Even if the view is initialized and recreated, this store is not recreated.
+        In this case, the url handler of the deep link does not work and must be called through initialURL().
+        To solve this problem, we leave the detection of the activity state to another component.
+        If a component that cannot be unmounted is unmounted, it means the activity is killed.
+   */
+  protected _isAndroidActivityKilled = false;
+  /*
+   This means that how many wc call request is processing.
+   When the call requested, should increase this.
+   And when the requested call is completed, should decrease this.
+   This field is only needed on the handler side, so don't need to be observable.
+   */
+  protected wcCallCount: number = 0;
+  /*
+   Check that there is a wallet connect call from the client that was connected by deep link.
+   */
+  protected isPendingWcCallFromDeepLinkClient = false;
+  /*
+   Save the clients that was connected by the deep link.
+   */
+  protected deepLinkClientKeyMap: Record<string, true | undefined> = {};
 
   constructor(
     protected readonly kvStore: KVStore,
@@ -374,15 +434,45 @@ export class WalletConnectStore extends WalletConnectManager {
     );
   }
 
+  get isPendingClientFromDeepLink(): boolean {
+    return this._isPendingClientFromDeepLink;
+  }
+
+  /**
+   needGoBackToBrowser indicates that all requests from the wallet connect are processed when the request is from the deep link.
+   This store doesn't show any indicator to user or close the app.
+   The other component (maybe provider) should act according to this field.
+   */
+  get needGoBackToBrowser(): boolean {
+    return this._needGoBackToBrowser;
+  }
+
   protected async initDeepLink() {
-    const initialURL = await Linking.getInitialURL();
-    if (initialURL) {
-      this.processDeepLinkURL(initialURL);
-    }
+    await this.checkInitialURL();
 
     Linking.addEventListener("url", (e) => {
       this.processDeepLinkURL(e.url);
     });
+
+    AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        if (this._isAndroidActivityKilled) {
+          // If the android activity restored, the deep link url handler will not work.
+          // We should recheck the initial URL()
+          this.checkInitialURL();
+        }
+        this._isAndroidActivityKilled = false;
+      } else {
+        this.clearNeedGoBackToBrowser();
+      }
+    });
+  }
+
+  protected async checkInitialURL() {
+    const initialURL = await Linking.getInitialURL();
+    if (initialURL) {
+      this.processDeepLinkURL(initialURL);
+    }
   }
 
   protected processDeepLinkURL(_url: string) {
@@ -394,12 +484,63 @@ export class WalletConnectStore extends WalletConnectManager {
           if (params.startsWith("?")) {
             params = params.slice(1);
           }
-          this.initClient(params);
+          if (this.canInitClient(params)) {
+            runInAction(() => {
+              this._isPendingClientFromDeepLink = true;
+            });
+
+            this.initClient(params)
+              .then((client) => {
+                this.deepLinkClientKeyMap[client.key] = true;
+                this.saveDeepLinkClientKeyMap(this.deepLinkClientKeyMap);
+              })
+              .finally(() => {
+                runInAction(() => {
+                  this._isPendingClientFromDeepLink = false;
+                });
+              });
+          }
         }
       }
     } catch (e) {
       console.log(e);
     }
+  }
+
+  onAndroidActivityKilled() {
+    this._isAndroidActivityKilled = true;
+  }
+
+  protected onCallBeforeRequested(client: WalletConnect) {
+    super.onCallBeforeRequested(client);
+
+    this.wcCallCount++;
+
+    if (this.deepLinkClientKeyMap[client.session.key]) {
+      this.isPendingWcCallFromDeepLinkClient = true;
+    }
+  }
+
+  @action
+  protected onCallAfterRequested(client: WalletConnect) {
+    super.onCallAfterRequested(client);
+
+    this.wcCallCount--;
+    if (this.wcCallCount == 0 && this.isPendingWcCallFromDeepLinkClient) {
+      this.isPendingWcCallFromDeepLinkClient = false;
+
+      if (AppState.currentState === "active") {
+        this._needGoBackToBrowser = true;
+      }
+    }
+  }
+
+  /**
+   clearNeedGoBackToBrowser is used in the component to set the needGoBackToBrowser as false.
+   */
+  @action
+  clearNeedGoBackToBrowser() {
+    this._needGoBackToBrowser = false;
   }
 
   protected async sendAccountMayChangedEventToClients() {
@@ -483,6 +624,13 @@ export class WalletConnectStore extends WalletConnectManager {
   }
 
   protected async restore(): Promise<void> {
+    const deepLinkClientMap = await this.kvStore.get<
+      Record<string, true | undefined>
+    >("deep_link_client_keys");
+    if (deepLinkClientMap) {
+      this.deepLinkClientKeyMap = deepLinkClientMap;
+    }
+
     const persistentSessions = await this.getPersistentSessions();
 
     for (const session of persistentSessions) {
@@ -517,6 +665,13 @@ export class WalletConnectStore extends WalletConnectManager {
     await this.kvStore.set("persistent_session_v1", value);
   }
 
+  protected async saveDeepLinkClientKeyMap(
+    keys: Record<string, true | undefined>
+  ): Promise<void> {
+    this.deepLinkClientKeyMap = keys;
+    await this.kvStore.set("deep_link_client_keys", keys);
+  }
+
   protected async onSessionConnected(client: WalletConnect): Promise<void> {
     const clients = this._clients;
 
@@ -537,6 +692,12 @@ export class WalletConnectStore extends WalletConnectManager {
   }
 
   protected async onSessionDisconnected(client: WalletConnect): Promise<void> {
+    if (this.deepLinkClientKeyMap[client.session.key]) {
+      delete this.deepLinkClientKeyMap[client.session.key];
+
+      await this.saveDeepLinkClientKeyMap(this.deepLinkClientKeyMap);
+    }
+
     runInAction(() => {
       this._clients = this._clients.filter(
         (persistent) => persistent.session.key !== client.session.key
