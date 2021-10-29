@@ -31,7 +31,7 @@ export interface IFeeConfig extends ITxChainSetter {
   fee: CoinPretty | undefined;
   getFeeTypePretty(feeType: FeeType): CoinPretty;
   getFeePrimitive(): CoinPrimitive | undefined;
-
+  isManual: boolean;
   getError(): Error | undefined;
 }
 
@@ -52,6 +52,9 @@ export interface IAmountConfig extends ITxChainSetter {
   sendableCurrencies: AppCurrency[];
   sender: string;
   setSender(sender: string): void;
+  setIsMax(isMax: boolean): void;
+  toggleIsMax(): void;
+  isMax: boolean;
 
   getError(): Error | undefined;
 }

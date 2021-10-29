@@ -16,6 +16,7 @@ import style from "./style.module.scss";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useInteractionInfo } from "@keplr-wallet/hooks";
 import { useHistory } from "react-router";
+import delay from "delay";
 
 interface FormData {
   password: string;
@@ -31,7 +32,7 @@ export const LockPage: FunctionComponent = observer(() => {
     },
   });
 
-  const { keyRingStore } = useStore();
+  const { keyRingStore, analyticsStore } = useStore();
   const [loading, setLoading] = useState(false);
 
   const interactionInfo = useInteractionInfo(() => {
@@ -46,9 +47,21 @@ export const LockPage: FunctionComponent = observer(() => {
           setLoading(true);
           try {
             await keyRingStore.unlock(data.password);
+            analyticsStore.logEvent("Account unlocked", {
+              authType: "password",
+            });
             if (interactionInfo.interaction) {
               if (!interactionInfo.interactionInternal) {
-                window.close();
+                // XXX: If the connection doesn't have the permission,
+                //      permission service tries to grant the permission right after unlocking.
+                //      Thus, due to the yet uncertain reason, it requests new interaction for granting permission
+                //      before the `window.close()`. And, it could make the permission page closed right after page changes.
+                //      Unfortunately, I still don't know the exact cause.
+                //      Anyway, for now, to reduce this problem, jsut wait small time, and close the window only if the page is not changed.
+                await delay(100);
+                if (window.location.href.includes("#/unlock")) {
+                  window.close();
+                }
               } else {
                 history.replace("/");
               }
