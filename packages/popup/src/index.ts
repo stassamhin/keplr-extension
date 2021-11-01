@@ -53,6 +53,7 @@ export async function openPopupWindow(
         focused: true,
       });
     } catch (e) {
+      // test
       console.log(`Failed to update window focus: ${e.message}`);
     }
   }
