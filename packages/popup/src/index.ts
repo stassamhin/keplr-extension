@@ -53,7 +53,8 @@ export async function openPopupWindow(
         focused: true,
       });
     } catch (e) {
-      // test
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       console.log(`Failed to update window focus: ${e.message}`);
     }
   }
