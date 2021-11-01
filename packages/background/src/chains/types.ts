@@ -41,7 +41,9 @@ export const CW20CurrencyShema = (CurrencySchema as ObjectSchema<CW20Currency>)
     }
   });
 
-export const Secret20CurrencyShema = (CurrencySchema as ObjectSchema<Secret20Currency>)
+export const Secret20CurrencyShema = (
+  CurrencySchema as ObjectSchema<Secret20Currency>
+)
   .keys({
     type: Joi.string().equal("secret20").required(),
     contractAddress: Joi.string().required(),

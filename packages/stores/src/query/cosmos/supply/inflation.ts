@@ -79,8 +79,8 @@ export class ObservableQueryInflation {
             mintParams.epochIdentifier
           ).duration;
           if (epochDuration) {
-            const epochProvision = this._queryOsmosisEpochProvisions
-              .epochProvisions;
+            const epochProvision =
+              this._queryOsmosisEpochProvisions.epochProvisions;
             if (
               epochProvision &&
               this._querySupplyTotal.getQueryStakeDenom().response
@@ -126,8 +126,8 @@ export class ObservableQueryInflation {
           }
 
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const response = this._querySupplyTotal.getQueryStakeDenom().response!
-            .data.result;
+          const response =
+            this._querySupplyTotal.getQueryStakeDenom().response!.data.result;
 
           if (typeof response === "string") {
             return response;

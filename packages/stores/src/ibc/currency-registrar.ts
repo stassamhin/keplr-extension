@@ -44,9 +44,7 @@ export class IBCCurrencyRegsitrarInner<C extends ChainInfo = ChainInfo> {
     protected readonly chainStore: ChainStore<C>,
     protected readonly accountStore: {
       hasAccount(chainId: string): boolean;
-      getAccount(
-        chainId: string
-      ): {
+      getAccount(chainId: string): {
         bech32Address: string;
       };
     },
@@ -175,9 +173,8 @@ export class IBCCurrencyRegsitrarInner<C extends ChainInfo = ChainInfo> {
         );
       }
     } else {
-      const queryDenomTrace = queries.cosmos.queryIBCDenomTrace.getDenomTrace(
-        hash
-      );
+      const queryDenomTrace =
+        queries.cosmos.queryIBCDenomTrace.getDenomTrace(hash);
       denomTrace = queryDenomTrace.denomTrace;
 
       if (denomTrace) {
@@ -310,9 +307,7 @@ export class IBCCurrencyRegsitrar<C extends ChainInfo = ChainInfo> {
     protected readonly chainStore: ChainStore<C>,
     protected readonly accountStore: {
       hasAccount(chainId: string): boolean;
-      getAccount(
-        chainId: string
-      ): {
+      getAccount(chainId: string): {
         bech32Address: string;
       };
     },

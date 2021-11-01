@@ -232,31 +232,30 @@ const handleUnlockKeyRingMsg: (
   };
 };
 
-const handleGetKeyMsg: (
-  service: KeyRingService
-) => InternalHandler<GetKeyMsg> = (service) => {
-  return async (env, msg) => {
-    await service.permissionService.checkOrGrantBasicAccessPermission(
-      env,
-      msg.chainId,
-      msg.origin
-    );
+const handleGetKeyMsg: (service: KeyRingService) => InternalHandler<GetKeyMsg> =
+  (service) => {
+    return async (env, msg) => {
+      await service.permissionService.checkOrGrantBasicAccessPermission(
+        env,
+        msg.chainId,
+        msg.origin
+      );
 
-    const key = await service.getKey(msg.chainId);
+      const key = await service.getKey(msg.chainId);
 
-    return {
-      name: service.getKeyStoreMeta("name"),
-      algo: "secp256k1",
-      pubKey: key.pubKey,
-      address: key.address,
-      bech32Address: new Bech32Address(key.address).toBech32(
-        (await service.chainsService.getChainInfo(msg.chainId)).bech32Config
-          .bech32PrefixAccAddr
-      ),
-      isNanoLedger: key.isNanoLedger,
+      return {
+        name: service.getKeyStoreMeta("name"),
+        algo: "secp256k1",
+        pubKey: key.pubKey,
+        address: key.address,
+        bech32Address: new Bech32Address(key.address).toBech32(
+          (await service.chainsService.getChainInfo(msg.chainId)).bech32Config
+            .bech32PrefixAccAddr
+        ),
+        isNanoLedger: key.isNanoLedger,
+      };
     };
   };
-};
 
 const handleRequestSignAminoMsg: (
   service: KeyRingService

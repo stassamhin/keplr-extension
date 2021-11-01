@@ -14,7 +14,8 @@ export interface HasSecretQueries {
 
 export class QueriesWithCosmosAndSecret
   extends QueriesWithCosmos
-  implements HasSecretQueries {
+  implements HasSecretQueries
+{
   public secret: SecretQueries;
 
   constructor(
@@ -46,11 +47,8 @@ export class SecretQueries {
     chainGetter: ChainGetter,
     apiGetter: () => Promise<Keplr | undefined>
   ) {
-    this.querySecretContractCodeHash = new ObservableQuerySecretContractCodeHash(
-      kvStore,
-      chainId,
-      chainGetter
-    );
+    this.querySecretContractCodeHash =
+      new ObservableQuerySecretContractCodeHash(kvStore, chainId, chainGetter);
 
     base.queryBalances.addBalanceRegistry(
       new ObservableQuerySecret20BalanceRegistry(

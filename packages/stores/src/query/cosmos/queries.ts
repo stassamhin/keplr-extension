@@ -41,7 +41,8 @@ export interface HasCosmosQueries {
 
 export class QueriesWithCosmos
   extends QueriesSetBase
-  implements HasCosmosQueries {
+  implements HasCosmosQueries
+{
   public cosmos: CosmosQueries;
 
   constructor(kvStore: KVStore, chainId: string, chainGetter: ChainGetter) {

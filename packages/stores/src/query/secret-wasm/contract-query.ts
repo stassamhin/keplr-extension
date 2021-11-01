@@ -133,7 +133,7 @@ export class ObservableSecretContractChainQuery<
       throw e;
     }
 
-    const encResult = (response.data as unknown) as
+    const encResult = response.data as unknown as
       | {
           height: string;
           result: {
