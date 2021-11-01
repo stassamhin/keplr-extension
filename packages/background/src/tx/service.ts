@@ -8,6 +8,7 @@ import { TendermintTxTracer } from "@keplr-wallet/cosmos/build/tx-tracer";
 import { Notification } from "./types";
 
 import { Buffer } from "buffer/";
+import { isError } from "../utils";
 
 interface CosmosSdkError {
   codespace: string;
@@ -98,7 +99,10 @@ export class BackgroundTxService {
       return txHash;
     } catch (e) {
       console.log(e);
-      BackgroundTxService.processTxErrorNotification(this.notification, e);
+      BackgroundTxService.processTxErrorNotification(
+        this.notification,
+        isError(e) ? e : new Error()
+      );
       throw e;
     }
   }
@@ -133,7 +137,10 @@ export class BackgroundTxService {
         message: "Congratulations!",
       });
     } catch (e) {
-      BackgroundTxService.processTxErrorNotification(notification, e);
+      BackgroundTxService.processTxErrorNotification(
+        notification,
+        isError(e) ? e : new Error()
+      );
     }
   }
 

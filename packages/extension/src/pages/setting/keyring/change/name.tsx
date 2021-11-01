@@ -10,6 +10,7 @@ import { useStore } from "../../../../stores";
 import { observer } from "mobx-react-lite";
 
 import styleName from "./name.module.scss";
+import { isError } from "../../../../utils";
 
 interface FormData {
   name: string;
@@ -63,7 +64,9 @@ export const ChangeNamePage: FunctionComponent = observer(() => {
             );
             history.push("/");
           } catch (e) {
-            console.log("Fail to decrypt: " + e.message);
+            if (isError(e)) {
+              console.log("Fail to decrypt: " + e.message);
+            }
             setError(
               "name",
               "invalid",

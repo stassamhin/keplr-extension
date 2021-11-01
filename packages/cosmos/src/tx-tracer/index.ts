@@ -1,6 +1,7 @@
 import { TxEventMap, WsReadyState } from "./types";
 
 import { Buffer } from "buffer/";
+import { isError } from "../utils";
 
 type Listeners = {
   [K in keyof TxEventMap]?: TxEventMap[K][];
@@ -174,11 +175,13 @@ export class TendermintTxTracer {
           }
         }
       } catch (e) {
-        console.log(
-          `Tendermint websocket jsonrpc response is not JSON: ${
-            e.message || e.toString()
-          }`
-        );
+        if (isError(e)) {
+          console.log(
+            `Tendermint websocket jsonrpc response is not JSON: ${
+              e.message || e.toString()
+            }`
+          );
+        }
       }
     }
   };

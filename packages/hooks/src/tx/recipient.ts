@@ -18,6 +18,7 @@ import {
 import { Bech32Address } from "@keplr-wallet/cosmos";
 import { useState } from "react";
 import { ObservableEnsFetcher } from "@keplr-wallet/ens";
+import { isError } from "../utils";
 
 export class RecipientConfig extends TxChainSetter implements IRecipientConfig {
   @observable
@@ -139,7 +140,7 @@ export class RecipientConfig extends TxChainSetter implements IRecipientConfig {
       Bech32Address.validate(this.recipient, this.bech32Prefix);
     } catch (e) {
       return new InvalidBech32Error(
-        `Invalid bech32: ${e.message || e.toString()}`
+        `Invalid bech32: ${isError(e) ? e.message : String(e)}`
       );
     }
     return;

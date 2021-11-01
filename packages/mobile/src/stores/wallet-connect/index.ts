@@ -21,6 +21,7 @@ import {
 import { computedFn } from "mobx-utils";
 import { Key } from "@keplr-wallet/types";
 import { AppState, Linking } from "react-native";
+import { isError } from "../../utils";
 
 export interface WalletConnectV1SessionRequest {
   id: number;
@@ -339,7 +340,7 @@ export abstract class WalletConnectManager {
       client.rejectRequest({
         id,
         error: {
-          message: e.message,
+          message: isError(e) ? e.message : String(e),
         },
       });
     } finally {
@@ -566,10 +567,11 @@ export class WalletConnectStore extends WalletConnectManager {
 
       const keplr = this.createKeplrAPI(client.session.key);
 
-      const permittedChains = await this.permissionStore.getOriginPermittedChains(
-        WCMessageRequester.getVirtualSessionURL(client.session.key),
-        getBasicAccessPermissionType()
-      );
+      const permittedChains =
+        await this.permissionStore.getOriginPermittedChains(
+          WCMessageRequester.getVirtualSessionURL(client.session.key),
+          getBasicAccessPermissionType()
+        );
 
       for (const chain of permittedChains) {
         const key = keyForChainCache[chain] ?? (await keplr.getKey(chain));

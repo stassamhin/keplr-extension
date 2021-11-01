@@ -13,6 +13,7 @@ import { useState } from "react";
 import { computedFn } from "mobx-utils";
 import { Msg } from "@cosmjs/launchpad";
 import { cosmos } from "@keplr-wallet/cosmos";
+import { isError } from "../utils";
 
 // This config helps the fee config to calculate that the fee is enough to send with considering
 // the amount in the sign doc.
@@ -125,7 +126,7 @@ export class SignDocAmountConfig
         }
       } catch (e) {
         console.log(
-          `Error on the parsing the msg: ${e.message || e.toString()}`
+          `Error on the parsing the msg: ${isError(e) ? e.message : String(e)}`
         );
       }
     }
@@ -164,7 +165,7 @@ export class SignDocAmountConfig
         }
       } catch (e) {
         console.log(
-          `Error on the parsing the msg: ${e.message || e.toString()}`
+          `Error on the parsing the msg: ${isError(e) ? e.message : String(e)}`
         );
       }
     }
