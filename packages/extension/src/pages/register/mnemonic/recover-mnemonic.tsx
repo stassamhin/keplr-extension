@@ -13,6 +13,7 @@ import { AdvancedBIP44Option, useBIP44Option } from "../advanced-bip44";
 import { useStore } from "../../../stores";
 
 import { Buffer } from "buffer/";
+import { isError } from "../../../utils";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bip39 = require("bip39");
@@ -146,7 +147,7 @@ export const RecoverMnemonicPage: FunctionComponent<{
                 });
               }
             } catch (e) {
-              alert(e.message ? e.message : e.toString());
+              alert(isError(e) ? e.message : String(e));
               registerConfig.clear();
             }
           })}

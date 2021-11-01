@@ -25,6 +25,7 @@ import { useStore } from "../../stores";
 import { EthereumEndpoint } from "../../config.ui";
 import { useNotification } from "../../components/notification";
 import { FormattedMessage, useIntl } from "react-intl";
+import { isError } from "../../utils";
 
 export const IBCTransferPage: FunctionComponent = observer(() => {
   const history = useHistory();
@@ -106,12 +107,16 @@ export const IBCTransferPage: FunctionComponent = observer(() => {
                 );
                 history.push("/");
               } catch (e) {
+                let message = "";
+                if (isError(e)) {
+                  message = e.message;
+                }
                 history.replace("/");
                 notification.push({
                   type: "warning",
                   placement: "top-center",
                   duration: 5,
-                  content: `Fail to transfer token: ${e.message}`,
+                  content: `Fail to transfer token: ${message}`,
                   canDelete: true,
                   transition: {
                     duration: 0.25,

@@ -14,6 +14,7 @@ import { CW20Currency, Secret20Currency } from "@keplr-wallet/types";
 import { useInteractionInfo } from "@keplr-wallet/hooks";
 import { useLoadingIndicator } from "../../../../components/loading-indicator";
 import { useNotification } from "../../../../components/notification";
+import { isError } from "../../../../utils";
 
 interface FormData {
   contractAddress: string;
@@ -146,11 +147,16 @@ export const AddTokenPage: FunctionComponent = observer(() => {
                 try {
                   viewingKey = await createViewingKey();
                 } catch (e) {
+                  let message = "";
+                  if (isError(e)) {
+                    message = e.message;
+                  }
+
                   notification.push({
                     placement: "top-center",
                     type: "danger",
                     duration: 2,
-                    content: `Failed to create the viewing key: ${e.message}`,
+                    content: `Failed to create the viewing key: ${message}`,
                     canDelete: true,
                     transition: {
                       duration: 0.25,

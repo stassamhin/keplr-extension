@@ -1,6 +1,7 @@
 import { Router } from "./types";
 import { MessageSender } from "../types";
 import { Result } from "../interfaces";
+import { isError } from "../utils";
 
 export class ExtensionRouter extends Router {
   listen(port: string): void {
@@ -55,10 +56,13 @@ export class ExtensionRouter extends Router {
         return: result,
       };
     } catch (e) {
-      console.log(
-        `Failed to process msg ${message.type}: ${e?.message || e?.toString()}`
-      );
-      if (e) {
+      if (e && isError(e)) {
+        console.log(
+          `Failed to process msg ${message.type}: ${
+            e?.message || e?.toString()
+          }`
+        );
+
         return Promise.resolve({
           error: e.message || e.toString(),
         });

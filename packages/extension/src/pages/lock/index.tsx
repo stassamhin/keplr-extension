@@ -17,6 +17,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { useInteractionInfo } from "@keplr-wallet/hooks";
 import { useHistory } from "react-router";
 import delay from "delay";
+import { isError } from "../../utils";
 
 interface FormData {
   password: string;
@@ -67,7 +68,9 @@ export const LockPage: FunctionComponent = observer(() => {
               }
             }
           } catch (e) {
-            console.log("Fail to decrypt: " + e.message);
+            if (isError(e)) {
+              console.log("Fail to decrypt: " + e.message);
+            }
             setError(
               "password",
               "invalid",

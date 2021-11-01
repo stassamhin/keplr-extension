@@ -108,9 +108,15 @@ export class ObservableEnsFetcher {
       this._address = Buffer.from(addr.replace("0x", ""), "hex");
       this._error = undefined;
     } catch (e) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      this._error = e;
+      const isError = (v: any | Error): v is Error =>
+        typeof v === "object" &&
+        v !== null &&
+        v.hasOwnProperty("message") &&
+        v.hasOwnProperty("name");
+
+      if (isError(e)) {
+        this._error = e;
+      }
     }
 
     this._isFetching = false;
