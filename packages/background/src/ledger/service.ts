@@ -11,6 +11,7 @@ import { KVStore } from "@keplr-wallet/common";
 import { InteractionService } from "../interaction";
 import { LedgerOptions } from "./options";
 import { Buffer } from "buffer/";
+import { isError } from "../utils";
 
 @singleton()
 export class LedgerService {
@@ -222,7 +223,7 @@ export class LedgerService {
                   signal: timeoutAbortController.signal,
                 });
               } catch (e) {
-                if (e.name === "AbortError") {
+                if (isError(e) && e.name === "AbortError") {
                   timeoutAborted = true;
                 } else {
                   throw e;
