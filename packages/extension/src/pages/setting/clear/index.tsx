@@ -17,6 +17,7 @@ import { observer } from "mobx-react-lite";
 
 import style from "./style.module.scss";
 import { WarningView } from "./warning-view";
+import { isError } from "../../../utils";
 
 interface FormData {
   password: string;
@@ -78,7 +79,9 @@ export const ClearPage: FunctionComponent = observer(() => {
 
               history.push("/");
             } catch (e) {
-              console.log("Fail to decrypt: " + e.message);
+              if (isError(e)) {
+                console.log("Fail to decrypt: " + e.message);
+              }
               setError(
                 "password",
                 "invalid",

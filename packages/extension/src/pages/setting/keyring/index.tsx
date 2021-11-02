@@ -15,6 +15,7 @@ import { MultiKeyStoreInfoWithSelectedElem } from "@keplr-wallet/background";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { useLogScreenView } from "../../../hooks";
+import { isError } from "../../../utils";
 
 export const SetKeyRingPage: FunctionComponent = observer(() => {
   const intl = useIntl();
@@ -113,7 +114,9 @@ export const SetKeyRingPage: FunctionComponent = observer(() => {
                         loadingIndicator.setIsLoading("keyring", false);
                         history.push("/");
                       } catch (e) {
-                        console.log(`Failed to change keyring: ${e.message}`);
+                        if (isError(e)) {
+                          console.log(`Failed to change keyring: ${e.message}`);
+                        }
                         loadingIndicator.setIsLoading("keyring", false);
                       }
                     }

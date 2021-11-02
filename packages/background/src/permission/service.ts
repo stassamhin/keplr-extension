@@ -160,9 +160,8 @@ export class PermissionService {
       return true;
     }
 
-    const permissionsInChain = this.permissionMap[
-      ChainIdHelper.parse(chainId).identifier
-    ];
+    const permissionsInChain =
+      this.permissionMap[ChainIdHelper.parse(chainId).identifier];
     if (!permissionsInChain) {
       return false;
     }
@@ -174,9 +173,8 @@ export class PermissionService {
   getPermissionOrigins(chainId: string, type: string): string[] {
     const origins = [];
 
-    const permissionsInChain = this.permissionMap[
-      ChainIdHelper.parse(chainId).identifier
-    ];
+    const permissionsInChain =
+      this.permissionMap[ChainIdHelper.parse(chainId).identifier];
     if (!permissionsInChain) {
       return [];
     }
@@ -216,14 +214,12 @@ export class PermissionService {
 
   async addPermission(chainIds: string[], type: string, origins: string[]) {
     for (const chainId of chainIds) {
-      let permissionsInChain = this.permissionMap[
-        ChainIdHelper.parse(chainId).identifier
-      ];
+      let permissionsInChain =
+        this.permissionMap[ChainIdHelper.parse(chainId).identifier];
       if (!permissionsInChain) {
         permissionsInChain = {};
-        this.permissionMap[
-          ChainIdHelper.parse(chainId).identifier
-        ] = permissionsInChain;
+        this.permissionMap[ChainIdHelper.parse(chainId).identifier] =
+          permissionsInChain;
       }
 
       let innerMap = permissionsInChain[type];
@@ -241,9 +237,8 @@ export class PermissionService {
   }
 
   async removePermission(chainId: string, type: string, origins: string[]) {
-    const permissionsInChain = this.permissionMap[
-      ChainIdHelper.parse(chainId).identifier
-    ];
+    const permissionsInChain =
+      this.permissionMap[ChainIdHelper.parse(chainId).identifier];
     if (!permissionsInChain) {
       return;
     }

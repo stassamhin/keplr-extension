@@ -8,6 +8,7 @@ import Axios, { CancelToken } from "axios";
 import { QueryResponse } from "../../common";
 
 import { Buffer } from "buffer/";
+import { isAxiosError } from "../../utils";
 
 export class ObservableSecretContractChainQuery<
   T
@@ -108,7 +109,7 @@ export class ObservableSecretContractChainQuery<
     try {
       response = await super.fetchResponse(cancelToken);
     } catch (e) {
-      if (!Axios.isCancel(e) && e.response?.data?.error) {
+      if (!Axios.isCancel(e) && isAxiosError(e) && e.response?.data?.error) {
         const encryptedError = e.response.data.error;
 
         const errorMessageRgx = /query contract failed: encrypted: (.+)/g;
@@ -133,7 +134,7 @@ export class ObservableSecretContractChainQuery<
       throw e;
     }
 
-    const encResult = (response.data as unknown) as
+    const encResult = response.data as unknown as
       | {
           height: string;
           result: {

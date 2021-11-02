@@ -15,6 +15,7 @@ import { StdSignDoc, AminoSignResponse, StdSignature } from "@cosmjs/launchpad";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bip39 = require("bip39");
 import { cosmos } from "@keplr-wallet/cosmos";
+import { isError } from "../utils";
 
 export class RestoreKeyRingMsg extends Message<{
   status: KeyRingStatus;
@@ -170,7 +171,7 @@ export class CreateMnemonicKeyMsg extends Message<{
     try {
       bip39.mnemonicToEntropy(this.mnemonic);
     } catch (e) {
-      if (e.message !== "Invalid mnemonic checksum") {
+      if (isError(e) && e.message !== "Invalid mnemonic checksum") {
         throw e;
       }
     }
@@ -222,7 +223,7 @@ export class AddMnemonicKeyMsg extends Message<{
     try {
       bip39.mnemonicToEntropy(this.mnemonic);
     } catch (e) {
-      if (e.message !== "Invalid mnemonic checksum") {
+      if (isError(e) && e.message !== "Invalid mnemonic checksum") {
         throw e;
       }
     }

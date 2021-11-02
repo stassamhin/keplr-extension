@@ -14,6 +14,7 @@ import { KVStore, toGenerator } from "@keplr-wallet/common";
 import { DeepReadonly } from "utility-types";
 import { HasMapStore } from "../map";
 import EventEmitter from "eventemitter3";
+import { isAxiosError, isError } from "../../utils";
 
 export type QueryOptions = {
   // millisec
@@ -226,7 +227,7 @@ export abstract class ObservableQueryBase<T = unknown, E = unknown> {
       }
 
       // If error is from Axios, and get response.
-      if (e.response) {
+      if (isAxiosError(e) && e.response) {
         const error: QueryError<E> = {
           status: e.response.status,
           statusText: e.response.statusText,
@@ -235,7 +236,7 @@ export abstract class ObservableQueryBase<T = unknown, E = unknown> {
         };
 
         this.setError(error);
-      } else if (e.request) {
+      } else if (isAxiosError(e) && e.request) {
         // if can't get the response.
         const error: QueryError<E> = {
           status: 0,
@@ -244,12 +245,12 @@ export abstract class ObservableQueryBase<T = unknown, E = unknown> {
         };
 
         this.setError(error);
-      } else {
+      } else if (isError(e)) {
         const error: QueryError<E> = {
           status: 0,
           statusText: e.message,
           message: e.message,
-          data: e,
+          data: e as any,
         };
 
         this.setError(error);

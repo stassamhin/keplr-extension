@@ -6,6 +6,7 @@ import {
 } from "@keplr-wallet/router";
 
 import EventEmitter from "eventemitter3";
+import { isError } from "../utils";
 
 export class RNRouterBase extends Router {
   constructor(
@@ -48,11 +49,13 @@ export class RNRouterBase extends Router {
       return;
     } catch (e) {
       console.log(
-        `Failed to process msg ${message.type}: ${e?.message || e?.toString()}`
+        `Failed to process msg ${message.type}: ${
+          isError(e) ? e.message : String(e)
+        }`
       );
       if (e) {
         sender.resolver({
-          error: e.message || e.toString(),
+          error: isError(e) ? e.message : String(e),
         });
       } else {
         sender.resolver({

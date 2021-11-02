@@ -15,6 +15,7 @@ import { useNotification } from "../../components/notification";
 import { useHistory } from "react-router";
 
 import { FormattedMessage } from "react-intl";
+import { isError } from "../../utils";
 
 export const StakeView: FunctionComponent = observer(() => {
   const history = useHistory();
@@ -66,12 +67,16 @@ export const StakeView: FunctionComponent = observer(() => {
 
         history.replace("/");
       } catch (e) {
+        let message = "";
+        if (isError(e)) {
+          message = e.message;
+        }
         history.replace("/");
         notification.push({
           type: "warning",
           placement: "top-center",
           duration: 5,
-          content: `Fail to withdraw rewards: ${e.message}`,
+          content: `Fail to withdraw rewards: ${message}`,
           canDelete: true,
           transition: {
             duration: 0.25,

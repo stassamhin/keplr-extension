@@ -9,6 +9,7 @@ import { AdvancedBIP44Option, useBIP44Option } from "../advanced-bip44";
 import { BackButton } from "../index";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../../stores";
+import { isError } from "../../../utils";
 
 export const TypeImportLedger = "import-ledger";
 
@@ -87,7 +88,7 @@ export const ImportLedgerPage: FunctionComponent<{
               accountType: "ledger",
             });
           } catch (e) {
-            alert(e.message ? e.message : e.toString());
+            alert(isError(e) ? e.message : String(e));
             registerConfig.clear();
           }
         })}
@@ -140,8 +141,7 @@ export const ImportLedgerPage: FunctionComponent<{
                 validate: (confirmPassword: string): string | undefined => {
                   if (confirmPassword !== getValues()["password"]) {
                     return intl.formatMessage({
-                      id:
-                        "register.create.input.confirm-password.error.unmatched",
+                      id: "register.create.input.confirm-password.error.unmatched",
                     });
                   }
                 },

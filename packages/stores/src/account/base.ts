@@ -30,6 +30,7 @@ import { Buffer } from "buffer/";
 import Long from "long";
 import ICoin = cosmos.base.v1beta1.ICoin;
 import SignMode = cosmos.tx.signing.v1beta1.SignMode;
+import { isError } from "../utils";
 
 export enum WalletStatus {
   NotInit = "NotInit",
@@ -291,14 +292,15 @@ export class AccountSetBase<MsgOpts, Queries> {
         this._isSendingMsg = false;
       });
 
-      if (this.opts.preTxEvents?.onBroadcastFailed) {
+      if (this.opts.preTxEvents?.onBroadcastFailed && isError(e)) {
         this.opts.preTxEvents.onBroadcastFailed(e);
       }
 
       if (
         onTxEvents &&
         "onBroadcastFailed" in onTxEvents &&
-        onTxEvents.onBroadcastFailed
+        onTxEvents.onBroadcastFailed &&
+        isError(e)
       ) {
         onTxEvents.onBroadcastFailed(e);
       }

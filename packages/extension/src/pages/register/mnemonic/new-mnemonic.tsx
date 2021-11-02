@@ -14,6 +14,7 @@ import { Input, TextArea } from "../../../components/form";
 import { BackButton } from "../index";
 import { NewMnemonicConfig, useNewMnemonicConfig, NumWords } from "./hook";
 import { useStore } from "../../../stores";
+import { isError } from "../../../utils";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bip39 = require("bip39");
@@ -222,8 +223,7 @@ export const GenerateMnemonicModePage: FunctionComponent<{
                 validate: (confirmPassword: string): string | undefined => {
                   if (confirmPassword !== getValues()["password"]) {
                     return intl.formatMessage({
-                      id:
-                        "register.create.input.confirm-password.error.unmatched",
+                      id: "register.create.input.confirm-password.error.unmatched",
                     });
                   }
                 },
@@ -358,7 +358,7 @@ export const VerifyMnemonicModePage: FunctionComponent<{
               accountType: "mnemonic",
             });
           } catch (e) {
-            alert(e.message ? e.message : e.toString());
+            alert(isError(e) ? e.message : String(e));
             registerConfig.clear();
           }
         }}

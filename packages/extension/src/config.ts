@@ -1,9 +1,7 @@
 import { Bech32Address } from "@keplr-wallet/cosmos";
 import { ChainInfo } from "@keplr-wallet/types";
 
-import {
-  PRIVILEGED_ORIGINS
-} from "./config.var";
+import { PRIVILEGED_ORIGINS } from "./config.var";
 
 export const EmbedChainInfos: ChainInfo[] = [
   {

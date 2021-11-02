@@ -13,13 +13,15 @@ import { useState } from "react";
 import { computedFn } from "mobx-utils";
 import { Msg } from "@cosmjs/launchpad";
 import { cosmos } from "@keplr-wallet/cosmos";
+import { isError } from "../utils";
 
 // This config helps the fee config to calculate that the fee is enough to send with considering
 // the amount in the sign doc.
 // This sets the amount as the sum of the messages in the sign doc if the message is known and can be parsed.
 export class SignDocAmountConfig
   extends TxChainSetter
-  implements IAmountConfig {
+  implements IAmountConfig
+{
   @observable.ref
   protected msgOpts: CosmosMsgOpts;
 
@@ -75,29 +77,27 @@ export class SignDocAmountConfig
     return "";
   }
 
-  getAmountPrimitive = computedFn(
-    (): CoinPrimitive => {
-      if (
-        !this.signDocHelper?.signDocWrapper ||
-        this.chainInfo.feeCurrencies.length === 0
-      ) {
-        return {
-          amount: "0",
-          denom: this.sendCurrency.coinMinimalDenom,
-        };
-      }
-
-      if (this.signDocHelper.signDocWrapper.mode === "amino") {
-        return this.computeAmountInAminoMsgs(
-          this.signDocHelper.signDocWrapper.aminoSignDoc.msgs
-        );
-      } else {
-        return this.computeAmountInProtoMsgs(
-          this.signDocHelper.signDocWrapper.protoSignDoc.txMsgs
-        );
-      }
+  getAmountPrimitive = computedFn((): CoinPrimitive => {
+    if (
+      !this.signDocHelper?.signDocWrapper ||
+      this.chainInfo.feeCurrencies.length === 0
+    ) {
+      return {
+        amount: "0",
+        denom: this.sendCurrency.coinMinimalDenom,
+      };
     }
-  );
+
+    if (this.signDocHelper.signDocWrapper.mode === "amino") {
+      return this.computeAmountInAminoMsgs(
+        this.signDocHelper.signDocWrapper.aminoSignDoc.msgs
+      );
+    } else {
+      return this.computeAmountInProtoMsgs(
+        this.signDocHelper.signDocWrapper.protoSignDoc.txMsgs
+      );
+    }
+  });
 
   protected computeAmountInAminoMsgs(msgs: readonly Msg[]) {
     const amount = new Coin(this.sendCurrency.coinMinimalDenom, new Int(0));
@@ -126,7 +126,7 @@ export class SignDocAmountConfig
         }
       } catch (e) {
         console.log(
-          `Error on the parsing the msg: ${e.message || e.toString()}`
+          `Error on the parsing the msg: ${isError(e) ? e.message : String(e)}`
         );
       }
     }
@@ -165,7 +165,7 @@ export class SignDocAmountConfig
         }
       } catch (e) {
         console.log(
-          `Error on the parsing the msg: ${e.message || e.toString()}`
+          `Error on the parsing the msg: ${isError(e) ? e.message : String(e)}`
         );
       }
     }

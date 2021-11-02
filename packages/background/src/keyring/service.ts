@@ -348,9 +348,7 @@ export class KeyRingService {
     return this.keyRing.addLedgerKey(env, kdf, meta, bip44HDPath);
   }
 
-  public async changeKeyStoreFromMultiKeyStore(
-    index: number
-  ): Promise<{
+  public async changeKeyStoreFromMultiKeyStore(index: number): Promise<{
     multiKeyStoreInfo: MultiKeyStoreInfoWithSelected;
   }> {
     try {

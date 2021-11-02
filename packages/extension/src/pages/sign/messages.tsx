@@ -556,8 +556,7 @@ export const WasmExecutionMsgView: FunctionComponent<{
         } catch {
           setWarningMsg(
             intl.formatMessage({
-              id:
-                "sign.list.message.wasm/MsgExecuteContract.content.warning.secret-wasm.failed-decryption",
+              id: "sign.list.message.wasm/MsgExecuteContract.content.warning.secret-wasm.failed-decryption",
             })
           );
         }

@@ -22,6 +22,7 @@ import queryString from "querystring";
 
 import { useSendTxConfig } from "@keplr-wallet/hooks";
 import { EthereumEndpoint } from "../../config.ui";
+import { isError } from "../../utils";
 
 export const SendPage: FunctionComponent = observer(() => {
   const history = useHistory();
@@ -44,13 +45,8 @@ export const SendPage: FunctionComponent = observer(() => {
 
   const notification = useNotification();
 
-  const {
-    chainStore,
-    accountStore,
-    priceStore,
-    queriesStore,
-    analyticsStore,
-  } = useStore();
+  const { chainStore, accountStore, priceStore, queriesStore, analyticsStore } =
+    useStore();
   const current = chainStore.current;
 
   const accountInfo = accountStore.getAccount(current.chainId);
@@ -129,7 +125,9 @@ export const SendPage: FunctionComponent = observer(() => {
                 type: "warning",
                 placement: "top-center",
                 duration: 5,
-                content: `Fail to send token: ${e.message}`,
+                content: `Fail to send token: ${
+                  isError(e) ? e.message : String(e)
+                }`,
                 canDelete: true,
                 transition: {
                   duration: 0.25,

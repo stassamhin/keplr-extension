@@ -93,10 +93,8 @@ export class ObservableQueryValidatorThumbnail extends ObservableQuery<KeybaseRe
 
 export class ObservableQueryValidatorsInner extends ObservableChainQuery<Validators> {
   @observable.shallow
-  protected thumbnailMap: Map<
-    string,
-    ObservableQueryValidatorThumbnail
-  > = new Map();
+  protected thumbnailMap: Map<string, ObservableQueryValidatorThumbnail> =
+    new Map();
 
   constructor(
     kvStore: KVStore,
@@ -140,13 +138,15 @@ export class ObservableQueryValidatorsInner extends ObservableChainQuery<Validat
     return this.response.data.result;
   }
 
-  readonly getValidator = computedFn((validatorAddress: string):
-    | Validator
-    | undefined => {
-    const validators = this.validators;
+  readonly getValidator = computedFn(
+    (validatorAddress: string): Validator | undefined => {
+      const validators = this.validators;
 
-    return validators.find((val) => val.operator_address === validatorAddress);
-  });
+      return validators.find(
+        (val) => val.operator_address === validatorAddress
+      );
+    }
+  );
 
   @computed
   get validatorsSortedByVotingPower(): Validator[] {
@@ -191,24 +191,24 @@ export class ObservableQueryValidatorsInner extends ObservableChainQuery<Validat
   /**
    * Return the validator's voting power as human friendly (considering the coin decimals).
    */
-  readonly getValidatorShare = computedFn((operatorAddress: string):
-    | CoinPretty
-    | undefined => {
-    const validators = this.validators;
-    const validator = validators.find(
-      (val) => val.operator_address === operatorAddress
-    );
-    if (!validator) {
-      return;
+  readonly getValidatorShare = computedFn(
+    (operatorAddress: string): CoinPretty | undefined => {
+      const validators = this.validators;
+      const validator = validators.find(
+        (val) => val.operator_address === operatorAddress
+      );
+      if (!validator) {
+        return;
+      }
+
+      const chainInfo = this.chainGetter.getChain(this.chainId);
+      const stakeCurrency = chainInfo.stakeCurrency;
+
+      const power = new Dec(validator.delegator_shares).truncate();
+
+      return new CoinPretty(stakeCurrency, power);
     }
-
-    const chainInfo = this.chainGetter.getChain(this.chainId);
-    const stakeCurrency = chainInfo.stakeCurrency;
-
-    const power = new Dec(validator.delegator_shares).truncate();
-
-    return new CoinPretty(stakeCurrency, power);
-  });
+  );
 }
 
 export class ObservableQueryValidators extends ObservableChainQueryMap<Validators> {

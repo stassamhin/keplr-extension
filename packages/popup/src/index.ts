@@ -1,3 +1,5 @@
+import { isError } from "./utils";
+
 const PopupSize = {
   width: 360,
   height: 580,
@@ -53,7 +55,9 @@ export async function openPopupWindow(
         focused: true,
       });
     } catch (e) {
-      console.log(`Failed to update window focus: ${e.message}`);
+      if (isError(e)) {
+        console.log(`Failed to update window focus: ${e.message}`);
+      }
     }
   }
 

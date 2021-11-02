@@ -97,12 +97,26 @@ export class ObservableEnsFetcher {
     try {
       // It seems that ethereum ens doesn't support the abi of recent public resolver yet.
       // So to solve this problem, inject the recent public resolver's abi manually.
+
+      // TODO: temporary type fix
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const resolver = yield this.ens.resolver(name, Resolver.abi);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const addr = yield resolver.addr(coinType);
       this._address = Buffer.from(addr.replace("0x", ""), "hex");
       this._error = undefined;
     } catch (e) {
-      this._error = e;
+      const isError = (v: any | Error): v is Error =>
+        typeof v === "object" &&
+        v !== null &&
+        v.hasOwnProperty("message") &&
+        v.hasOwnProperty("name");
+
+      if (isError(e)) {
+        this._error = e;
+      }
     }
 
     this._isFetching = false;

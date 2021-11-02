@@ -14,6 +14,7 @@ import { CW20Currency, Secret20Currency } from "@keplr-wallet/types";
 import { useInteractionInfo } from "@keplr-wallet/hooks";
 import { useLoadingIndicator } from "../../../../components/loading-indicator";
 import { useNotification } from "../../../../components/notification";
+import { isError } from "../../../../utils";
 
 interface FormData {
   contractAddress: string;
@@ -63,9 +64,8 @@ export const AddTokenPage: FunctionComponent = observer(() => {
   }, [chainStore, contractAddress, form, tokensStore.waitingSuggestedToken]);
 
   const queries = queriesStore.get(chainStore.current.chainId);
-  const queryContractInfo = queries.secret.querySecret20ContractInfo.getQueryContract(
-    contractAddress
-  );
+  const queryContractInfo =
+    queries.secret.querySecret20ContractInfo.getQueryContract(contractAddress);
 
   const tokenInfo = queryContractInfo.tokenInfo;
 
@@ -74,9 +74,8 @@ export const AddTokenPage: FunctionComponent = observer(() => {
       (feature) => feature === "secretwasm"
     ) != null;
 
-  const [isOpenSecret20ViewingKey, setIsOpenSecret20ViewingKey] = useState(
-    false
-  );
+  const [isOpenSecret20ViewingKey, setIsOpenSecret20ViewingKey] =
+    useState(false);
 
   const notification = useNotification();
   const loadingIndicator = useLoadingIndicator();
@@ -148,11 +147,16 @@ export const AddTokenPage: FunctionComponent = observer(() => {
                 try {
                   viewingKey = await createViewingKey();
                 } catch (e) {
+                  let message = "";
+                  if (isError(e)) {
+                    message = e.message;
+                  }
+
                   notification.push({
                     placement: "top-center",
                     type: "danger",
                     duration: 2,
-                    content: `Failed to create the viewing key: ${e.message}`,
+                    content: `Failed to create the viewing key: ${message}`,
                     canDelete: true,
                     transition: {
                       duration: 0.25,

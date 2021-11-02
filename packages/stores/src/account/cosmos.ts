@@ -29,7 +29,8 @@ export interface CosmosMsgOpts {
 
 export class AccountWithCosmos
   extends AccountSetBase<CosmosMsgOpts, HasCosmosQueries>
-  implements HasCosmosAccount {
+  implements HasCosmosAccount
+{
   public readonly cosmos: DeepReadonly<CosmosAccount>;
 
   static readonly defaultMsgOpts: CosmosMsgOpts = {
@@ -559,12 +560,13 @@ export class CosmosAccount {
               return {
                 type_url:
                   "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
-                value: cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward.encode(
-                  {
-                    delegatorAddress: msg.value.delegator_address,
-                    validatorAddress: msg.value.validator_address,
-                  }
-                ).finish(),
+                value:
+                  cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward.encode(
+                    {
+                      delegatorAddress: msg.value.delegator_address,
+                      validatorAddress: msg.value.validator_address,
+                    }
+                  ).finish(),
               };
             })
           : undefined,

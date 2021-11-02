@@ -9,6 +9,7 @@ import {
 } from "@keplr-wallet/router";
 import { PushEventDataMsg, PushInteractionDataMsg } from "./foreground";
 import { RNG } from "@keplr-wallet/crypto";
+import { isError } from "../utils";
 
 @singleton()
 export class InteractionService {
@@ -37,7 +38,9 @@ export class InteractionService {
     });
 
     this.eventMsgRequester.sendMessage(port, msg).catch((e) => {
-      console.log(`Failed to send the event to ${port}: ${e.message}`);
+      if (isError(e)) {
+        console.log(`Failed to send the event to ${port}: ${e.message}`);
+      }
     });
   }
 

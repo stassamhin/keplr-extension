@@ -20,6 +20,7 @@ import style from "./style.module.scss";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../../stores";
 import { flowResult } from "mobx";
+import { isError } from "../../../utils";
 
 interface FormData {
   password: string;
@@ -89,7 +90,9 @@ export const ExportPage: FunctionComponent = observer(() => {
                     )
                   );
                 } catch (e) {
-                  console.log("Fail to decrypt: " + e.message);
+                  if (isError(e)) {
+                    console.log("Fail to decrypt: " + e.message);
+                  }
                   setError(
                     "password",
                     "invalid",

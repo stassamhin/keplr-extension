@@ -5,6 +5,7 @@ const CosmosApp: any = require("ledger-cosmos-js").default;
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { signatureImport } from "secp256k1";
+import { isError } from "../utils";
 
 export enum LedgerInitErrorOn {
   Transport,
@@ -54,11 +55,15 @@ export class Ledger {
       if (transport) {
         await transport.close();
       }
-      if (e.message === "Device is on screen saver") {
-        throw new LedgerInitError(LedgerInitErrorOn.Transport, e.message);
-      }
+      if (isError(e)) {
+        if (e.message === "Device is on screen saver") {
+          throw new LedgerInitError(LedgerInitErrorOn.Transport, e.message);
+        }
 
-      throw new LedgerInitError(LedgerInitErrorOn.App, e.message);
+        throw new LedgerInitError(LedgerInitErrorOn.App, e.message);
+      } else {
+        throw new LedgerInitError(LedgerInitErrorOn.App, "");
+      }
     }
   }
 

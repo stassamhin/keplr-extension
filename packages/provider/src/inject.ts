@@ -23,6 +23,7 @@ import { DirectSignResponse, OfflineDirectSigner } from "@cosmjs/proto-signing";
 import { JSONUint8Array } from "@keplr-wallet/router/build/json-uint8-array";
 import { CosmJSOfflineSigner, CosmJSOfflineSignerOnlyAmino } from "./cosmjs";
 import deepmerge from "deepmerge";
+import { isError } from "./utils";
 
 export interface ProxyRequest {
   type: "proxy-request";
@@ -109,7 +110,7 @@ export class InjectedKeplr implements IKeplr {
           type: "proxy-request-response",
           id: message.id,
           result: {
-            error: e.message || e.toString(),
+            error: isError(e) ? e.message : String(e),
           },
         };
 

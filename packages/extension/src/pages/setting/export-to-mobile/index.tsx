@@ -19,6 +19,7 @@ import AES, { Counter } from "aes-js";
 import { AddressBookConfigMap, AddressBookData } from "@keplr-wallet/hooks";
 import { ExtensionKVStore } from "@keplr-wallet/common";
 import { toJS } from "mobx";
+import { isError } from "../../../utils";
 
 export interface QRCodeSharedData {
   // The uri for the wallet connect
@@ -181,7 +182,9 @@ export const EnterPasswordToExportKeyRingView: FunctionComponent<{
               await keyRingStore.exportKeyRingDatas(data.password)
             );
           } catch (e) {
-            console.log("Fail to decrypt: " + e.message);
+            if (isError(e)) {
+              console.log("Fail to decrypt: " + e.message);
+            }
             setError(
               "password",
               "invalid",
@@ -316,9 +319,8 @@ export const WalletConnectToExportKeyRingView: FunctionComponent<{
                 if (payload.params && payload.params.length > 0) {
                   for (const chainId of payload.params[0].addressBookChainIds ??
                     []) {
-                    const addressBookConfig = addressBookConfigMap.getAddressBookConfig(
-                      chainId
-                    );
+                    const addressBookConfig =
+                      addressBookConfigMap.getAddressBookConfig(chainId);
 
                     await addressBookConfig.waitLoaded();
 

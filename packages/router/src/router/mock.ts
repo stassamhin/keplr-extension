@@ -2,6 +2,7 @@ import { Router } from "./types";
 import { MessageSender } from "../types";
 import { Result } from "../interfaces";
 import { EventEmitter } from "events";
+import { isError } from "../utils";
 
 export class MockRouter extends Router {
   public static eventEmitter = new EventEmitter();
@@ -38,10 +39,13 @@ export class MockRouter extends Router {
       });
       return;
     } catch (e) {
-      console.log(
-        `Failed to process msg ${message.type}: ${e?.message || e?.toString()}`
-      );
-      if (e) {
+      if (e && isError(e)) {
+        console.log(
+          `Failed to process msg ${message.type}: ${
+            e?.message || e?.toString()
+          }`
+        );
+
         sender.resolver({
           error: e.message || e.toString(),
         });

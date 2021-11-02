@@ -13,6 +13,7 @@ import { AdvancedBIP44Option, useBIP44Option } from "../advanced-bip44";
 import { useStore } from "../../../stores";
 
 import { Buffer } from "buffer/";
+import { isError } from "../../../utils";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bip39 = require("bip39");
@@ -146,7 +147,7 @@ export const RecoverMnemonicPage: FunctionComponent<{
                 });
               }
             } catch (e) {
-              alert(e.message ? e.message : e.toString());
+              alert(isError(e) ? e.message : String(e));
               registerConfig.clear();
             }
           })}
@@ -178,8 +179,7 @@ export const RecoverMnemonicPage: FunctionComponent<{
                   value = value.replace("0x", "");
                   if (value.length !== 64) {
                     return intl.formatMessage({
-                      id:
-                        "register.import.textarea.private-key.error.invalid-length",
+                      id: "register.import.textarea.private-key.error.invalid-length",
                     });
                   }
 
@@ -190,8 +190,7 @@ export const RecoverMnemonicPage: FunctionComponent<{
                         .toLowerCase() !== value.toLowerCase()
                     ) {
                       return intl.formatMessage({
-                        id:
-                          "register.import.textarea.private-key.error.invalid",
+                        id: "register.import.textarea.private-key.error.invalid",
                       });
                     }
                   } catch {
@@ -252,8 +251,7 @@ export const RecoverMnemonicPage: FunctionComponent<{
                   validate: (confirmPassword: string): string | undefined => {
                     if (confirmPassword !== getValues()["password"]) {
                       return intl.formatMessage({
-                        id:
-                          "register.create.input.confirm-password.error.unmatched",
+                        id: "register.create.input.confirm-password.error.unmatched",
                       });
                     }
                   },
