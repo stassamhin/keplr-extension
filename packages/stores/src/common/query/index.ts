@@ -14,7 +14,7 @@ import { KVStore, toGenerator } from "@keplr-wallet/common";
 import { DeepReadonly } from "utility-types";
 import { HasMapStore } from "../map";
 import EventEmitter from "eventemitter3";
-import { isAxiosError, isError } from "src/utils";
+import { isAxiosError, isError } from "../../utils";
 
 export type QueryOptions = {
   // millisec

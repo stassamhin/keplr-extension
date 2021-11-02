@@ -94,7 +94,11 @@ export const LedgerGrantPage: FunctionComponent = observer(() => {
       }
     } catch (e) {
       console.log(e);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       if (e.errorOn != null) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         initErrorOn = e.errorOn;
       } else {
         initErrorOn = LedgerInitErrorOn.Unknown;
