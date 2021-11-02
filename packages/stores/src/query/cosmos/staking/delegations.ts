@@ -2,12 +2,21 @@ import {
   ObservableChainQuery,
   ObservableChainQueryMap,
 } from "../../chain-query";
-import { Delegation, Delegations, DelegationsStargate } from "./types";
+import {
+  Delegation,
+  Delegations,
+  DelegationsStargate,
+  DelegationStargate,
+} from "./types";
 import { KVStore } from "@keplr-wallet/common";
 import { ChainGetter } from "../../../common";
 import { CoinPretty, Int } from "@keplr-wallet/unit";
 import { computed, makeObservable } from "mobx";
 import { computedFn } from "mobx-utils";
+
+const isStargatDelegation = (
+  v: Delegation | DelegationStargate
+): v is DelegationStargate => v.hasOwnProperty("delegation");
 
 export class ObservableQueryDelegationsInner extends ObservableChainQuery<
   Delegations | DelegationsStargate
@@ -93,23 +102,19 @@ export class ObservableQueryDelegationsInner extends ObservableChainQuery<
       return [];
     }
 
-    const result = this.response.data.result;
-    if (result.length > 0 && "delegation" in result[0]) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      return result.map((r) => {
-        return {
-          balance: r.balance,
-          delegator_address: r.delegation.delegator_address,
-          validator_address: r.delegation.validator_address,
-          shares: r.delegation.shares,
-        };
-      });
-    }
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return result;
+    return [...this.response.data.result]
+      .filter(isStargatDelegation)
+      .map(
+        ({
+          balance,
+          delegation: { delegator_address, validator_address, shares },
+        }) => ({
+          balance,
+          delegator_address,
+          validator_address,
+          shares,
+        })
+      );
   }
 
   readonly getDelegationTo = computedFn(
